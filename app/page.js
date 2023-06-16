@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import { useRef, useState } from "react";
 import ReactDOMServer from "react-dom/server";
 import ReactDOM from "react-dom";
+import { AiFillFire } from "react-icons/ai";
+import { FaCarSide } from "react-icons/fa";
 const TbSquareRootIcon = <TbSquareRoot />;
 const keyvalues = [
   "(",
@@ -306,7 +308,7 @@ export default function Home() {
   };
   console.log(total);
   return (
-    <main className="flex w-screen h-screen justify-center items-center">
+    <main className="flex flex-col w-screen h-screen justify-center text-black items-center">
       <div className="flex flex-col w-[340px] h-[390px] bg-blue-300 rounded-lg">
         <div className="border bg-blue-200 h-[80px] m-[20px]">
           <div
@@ -516,6 +518,17 @@ export default function Home() {
               {`Enter`}
             </motion.div>
           </div>
+        </div>
+      </div>
+      <div className=" my-5 w-[340px] h-[50px] flex-row bg-blue-200 rounded-lg shadow-2xl flex justify-center items-center ">
+        Created by{" "}
+        <div className="flex flex-row mx-2">
+          <span title="Kar" className="cursor-pointer">
+            <FaCarSide size={20} />
+          </span>
+          <span title="Thi (tamil)" className="cursor-pointer">
+            <AiFillFire size={20} className="text-red-400" />
+          </span>
         </div>
       </div>
     </main>
