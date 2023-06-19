@@ -115,8 +115,11 @@ function evaluateExpression(expression) {
       numberStack.push(result);
     }
   }
+  var formattedNumber = Number.isInteger(numberStack[0])
+    ? numberStack[0].toFixed(0)
+    : numberStack[0].toFixed(2);
 
-  return numberStack[0].toFixed(4);
+  return formattedNumber;
 }
 
 function removeTrailingOperators(expression) {
@@ -131,6 +134,9 @@ function removeTrailingOperators(expression) {
 }
 
 function applyOperator(operand1, operand2, operator) {
+  console.log("operator", operator);
+  console.log("operand1", operand1);
+  console.log("operand2", operand2);
   switch (operator) {
     case "+":
       return operand1 + operand2;
@@ -149,6 +155,36 @@ function applyOperator(operand1, operand2, operator) {
     default:
       throw new Error("Invalid operator");
   }
+}
+
+function balanceParentheses(expression) {
+  let openParenthesesCount = 0;
+  let closeParenthesesCount = 0;
+
+  // Count the number of opening and closing parentheses
+  for (let i = 0; i < expression.length; i++) {
+    if (expression[i] === "(") {
+      openParenthesesCount++;
+    } else if (expression[i] === ")") {
+      closeParenthesesCount++;
+    }
+  }
+
+  // Add closing parentheses if necessary
+  const parenthesesDifference = openParenthesesCount - closeParenthesesCount;
+  if (parenthesesDifference > 0) {
+    expression += ")".repeat(parenthesesDifference);
+  }
+
+  // // Remove extra operators without values
+  // const extraOperators = ["+", "-", "*", "/", "%", "^", "sqrt"];
+  // for (let i = 0; i < extraOperators.length; i++) {
+  //   const operator = extraOperators[i];
+  //   const regex = new RegExp(`\\${operator}[^\d.]`, "g");
+  //   expression = expression.replace(regex, "");
+  // }
+
+  return expression;
 }
 
 function applySqrtOperator(operand) {
@@ -255,10 +291,10 @@ export default function Home() {
   const handleOperations = (operations) => {
     setGotResult(false);
     const prevVal = inputref.current.value;
-    console.log("value", prevVal);
     const hdnDisp = hiddeninputref.current.value;
+
     const disp = displayref.current.innerHTML;
-    console.log(disp);
+
     if (operations === "sqrt") {
       const iconMarkup = ReactDOMServer.renderToString(<TbSquareRoot />);
       hiddeninputref.current.value = `${hdnDisp}${prevVal} sqrt(`;
@@ -271,23 +307,27 @@ export default function Home() {
   };
 
   const handleResult = () => {
-    setGotResult(true);
     const prevVal = inputref.current.value;
     const hdnDisp = hiddeninputref.current.value;
-    console.log("hidnDisp", hdnDisp);
+    console.log("hdnDisp", balanceParentheses(hdnDisp));
     const disp = displayref.current.innerHTML;
-    if (prevVal === "") {
-      displayref.current.innerHTML = `${removeLastLetterIfMatch(
-        disp,
-        lastOperator
-      )}=`;
-      const result = evaluateExpression(hdnDisp);
-      console.log(result);
-      inputref.current.value = `${result}`;
+    console.log("display", balanceParentheses(disp));
+    if (gotResult) {
+      inputref.current.value = "";
+      hiddeninputref.current.value = `${prevVal}`;
+      displayref.current.innerHTML = `${prevVal}`;
+      setGotResult(false);
     } else {
-      const result = evaluateExpression(`${hdnDisp}${prevVal}`);
+      setGotResult(true);
+      let resultExpression = "";
+      if (prevVal === "") {
+        resultExpression = `${removeLastLetterIfMatch(disp, lastOperator)}=`;
+      } else {
+        resultExpression = `${hdnDisp}${prevVal}`;
+      }
+      const result = evaluateExpression(resultExpression);
       console.log(result);
-      displayref.current.innerHTML = `${disp}${prevVal}=`;
+      displayref.current.innerHTML = `${resultExpression}=`;
       inputref.current.value = `${result}`;
     }
   };
@@ -306,7 +346,7 @@ export default function Home() {
     const result = evaluateExpression("sqrt(25)");
     console.log(result);
   };
-  console.log(total);
+  //console.log(total);
   return (
     <main className="flex flex-col w-screen h-screen justify-center text-black items-center">
       <div className="flex flex-col w-[340px] h-[390px] bg-blue-300 rounded-lg">
